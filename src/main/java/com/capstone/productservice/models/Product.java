@@ -1,15 +1,15 @@
 package com.capstone.productservice.models;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
-public class Product {
+public class Product
+{
     private long id;
     private String name;
-    private String description;
     private double price;
+    private String description;
     private String imageUrl;
     private Category category;
 }
