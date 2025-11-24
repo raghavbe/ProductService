@@ -11,6 +11,12 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
+
 @Service
 public class FakeStoreProductService implements ProductService
 {
@@ -97,5 +103,29 @@ public class FakeStoreProductService implements ProductService
 
         return responseEntity.getBody().toProduct();
 
+    }
+
+    @Override
+    public Product applyPatchToProduct(long id, JsonPatch patch)
+            throws ProductNotFoundException,
+            JsonPatchException,
+            JsonProcessingException {
+
+        Product existingProduct = getProductById(id);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode productNode = objectMapper.valueToTree(existingProduct);
+
+        JsonNode patchedNode = patch.apply(productNode);
+
+        Product patchedProduct = objectMapper.treeToValue(patchedNode, Product.class);
+
+        return replaceProduct(id,
+                patchedProduct.getName(),
+                patchedProduct.getDescription(),
+                patchedProduct.getPrice(),
+                patchedProduct.getCategory().getName(),
+                patchedProduct.getImageUrl()
+        );
     }
 }

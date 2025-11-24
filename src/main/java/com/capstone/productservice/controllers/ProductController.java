@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 
 
 @RestController
@@ -76,4 +79,18 @@ public class ProductController {
 
         return ProductResponseDto.from(product);
     }
+
+    @PatchMapping(
+            path = "/products/{id}",
+            consumes = "application/json-patch+json" // REQUIRED
+    )
+    public ProductResponseDto updateProduct(
+            @PathVariable("id") long id,
+            @RequestBody JsonPatch jsonPatch
+    ) throws ProductNotFoundException, JsonPatchException, JsonProcessingException
+    {
+        Product product = productService.applyPatchToProduct(id, jsonPatch);
+        return ProductResponseDto.from(product);
+    }
+
 }
