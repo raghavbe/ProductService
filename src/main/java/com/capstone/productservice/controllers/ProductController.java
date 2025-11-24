@@ -6,6 +6,7 @@ import com.capstone.productservice.dtos.ProductResponseDto;
 import com.capstone.productservice.exceptions.ProductNotFoundException;
 import com.capstone.productservice.models.Product;
 import com.capstone.productservice.services.ProductService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,8 @@ import com.github.fge.jsonpatch.JsonPatchException;
 public class ProductController {
     ProductService productService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(
+            @Qualifier("productDbService") ProductService productService){
         this.productService = productService;
     }
 

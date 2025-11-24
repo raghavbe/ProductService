@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 
-@Service
+@Service("fakeStoreProductService")
 public class FakeStoreProductService implements ProductService
 {
     RestTemplate restTemplate;
