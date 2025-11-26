@@ -31,8 +31,6 @@ public class ProductController {
     public ProductResponseDto getProductById(@PathVariable("id") long id)
             throws ProductNotFoundException {
         Product product = productService.getProductById(id);
-
-//        System.out.println(product.getCategory().getName());
         return ProductResponseDto.from(product);
     }
 
