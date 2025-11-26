@@ -32,6 +32,7 @@ public class ProductController {
             throws ProductNotFoundException {
         Product product = productService.getProductById(id);
 
+//        System.out.println(product.getCategory().getName());
         return ProductResponseDto.from(product);
     }
 
