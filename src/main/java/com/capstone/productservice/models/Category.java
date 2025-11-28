@@ -1,5 +1,6 @@
 package com.capstone.productservice.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -17,5 +18,6 @@ public class Category extends Base implements Serializable
 {
     @OneToMany(mappedBy = "category")
     @Fetch(FetchMode.SUBSELECT)
+    @JsonIgnore
     List<Product> products;
 }
