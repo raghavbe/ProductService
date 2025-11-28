@@ -4,6 +4,7 @@ import com.capstone.productservice.dtos.FakeStoreRequestDto;
 import com.capstone.productservice.dtos.FakeStoreResponseDto;
 import com.capstone.productservice.exceptions.ProductNotFoundException;
 import com.capstone.productservice.models.Product;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -21,24 +22,36 @@ import com.github.fge.jsonpatch.JsonPatchException;
 public class FakeStoreProductService implements ProductService
 {
     RestTemplate restTemplate;
+    RedisTemplate<String, Object> redisTemplate;
 
-    public FakeStoreProductService(RestTemplate restTemplate)
+    public FakeStoreProductService(RestTemplate restTemplate,
+                                   RedisTemplate<String, Object> redisTemplate)
     {
         this.restTemplate = restTemplate;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
-    public Product getProductById(long id) throws ProductNotFoundException {
-       FakeStoreResponseDto fakeStoreResponseDto  = restTemplate.getForObject(
+    public Product getProductById(long id) throws ProductNotFoundException
+    {
+        Product productFromRedis = (Product) redisTemplate.opsForValue().get(String.valueOf(id));
+        if(productFromRedis != null)
+        {
+            return productFromRedis;
+        }
+
+        FakeStoreResponseDto fakeStoreResponseDto  = restTemplate.getForObject(
                 "https://fakestoreapi.com/products/" + id,
                 FakeStoreResponseDto.class);
 
-       if(fakeStoreResponseDto == null)
-       {
-           throw new ProductNotFoundException("Product with id " + id + " not found.");
-       }
+        if(fakeStoreResponseDto == null)
+        {
+            throw new ProductNotFoundException("Product with id " + id + " not found.");
+        }
 
-       return fakeStoreResponseDto.toProduct();
+        Product productFromFakeStore = fakeStoreResponseDto.toProduct();
+        redisTemplate.opsForValue().set(String.valueOf(id), productFromFakeStore);
+        return productFromFakeStore;
     }
 
     @Override
@@ -111,13 +124,17 @@ public class FakeStoreProductService implements ProductService
             JsonPatchException,
             JsonProcessingException {
 
+        // Get existing product
         Product existingProduct = getProductById(id);
 
+        // Convert Product to JSON Format
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode productNode = objectMapper.valueToTree(existingProduct);
 
+        // Apply Patch
         JsonNode patchedNode = patch.apply(productNode);
 
+        //Convert back to Product
         Product patchedProduct = objectMapper.treeToValue(patchedNode, Product.class);
 
         return replaceProduct(id,
