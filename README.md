@@ -45,7 +45,7 @@ The service exposes the following REST endpoints (examples):
 | `POST` | `/products` | Create a new product |
 | `PUT` | `/products/{id}` | Replace a product entirely |
 | `PATCH` | `/products/{id}` | Update specific fields (JSON Patch) |
-| `GET` | `/products/search` | Search products with specific criteria |
+
 
 ## ⚙️ Configuration
 
