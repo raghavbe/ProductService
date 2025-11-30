@@ -1,6 +1,7 @@
 package com.capstone.productservice.controllers;
 
 
+import com.capstone.productservice.commons.ApplicationCommons;
 import com.capstone.productservice.dtos.CreateFakeStoreProductRequestDto;
 import com.capstone.productservice.dtos.ProductResponseDto;
 import com.capstone.productservice.exceptions.ProductNotFoundException;
@@ -21,15 +22,22 @@ import com.github.fge.jsonpatch.JsonPatchException;
 @RestController
 public class ProductController {
     ProductService productService;
-
+    ApplicationCommons applicationCommons;
     public ProductController(
-            @Qualifier("fakeStoreProductService") ProductService productService){
+            @Qualifier("fakeStoreProductService") ProductService productService,
+            ApplicationCommons applicationCommons){
         this.productService = productService;
+        this.applicationCommons = applicationCommons;
     }
 
     @GetMapping("/products/{id}")
-    public ProductResponseDto getProductById(@PathVariable("id") long id)
-            throws ProductNotFoundException {
+    public ProductResponseDto getProductById(@PathVariable("id") long id,
+                                             @RequestHeader("Authorization") String token)
+            throws ProductNotFoundException
+    {
+
+        // Validate Token
+        applicationCommons.validateToken(token);
         Product product = productService.getProductById(id);
         return ProductResponseDto.from(product);
     }
